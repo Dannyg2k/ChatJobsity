@@ -10,19 +10,25 @@
 
             </ul>
         </div>
-          <div class="col-sm-8">
+          <div class="col-sm-6">
               Message <br />
 
                 <ul id="messageArea">
 
             </ul>
           </div>
+        
 
     </div>
     <h4>Input Message</h4>
     <div class="row">
        <div class="col-sm-6">
            <asp:TextBox ID="userMessage" runat="server" Height="104px" TextMode="MultiLine" Width="516px"></asp:TextBox>
+       </div>
+         <div class="col-sm-6">
+            <h5> Last Time Users Disconnected </h5><br />
+
+                <ul id="disconnectList" runat="server"></ul>
        </div>
     </div>
     
@@ -33,6 +39,8 @@
         
        </div>
     </div>
+    <br />
+    <h4></h4>
 
     <script src="Scripts/jquery.signalR-2.4.1.min.js"></script>
     <script src="signalr/hubs"></script>
@@ -43,13 +51,20 @@
             var chat = $.connection.chatHub;
             var username = '<%: Context.User.Identity.GetUserName()  %>';
             //  alert(username);
-            chat.client.updateUsers = function (userCount, userList) {
+            chat.client.updateUsers = function (userCount, userList,disco) {
                 $("#OnlineUserCounts").text('Online Users : ' + userCount);
                 $("#userList").empty();
                 userList.forEach(function (username) {
                     $("#userList").append('<li>' + username + '</li>');
+                 }
+                );
+
+                $("#<%= disconnectList.ClientID %>").empty();
+                disco.forEach(function (username) {
+                    $("#<%= disconnectList.ClientID %>").append('<li>' + username + '</li>');
                 }
                 );
+
             };
 
             chat.client.SendData = function (username, message) {

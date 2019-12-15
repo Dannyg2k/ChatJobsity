@@ -9,8 +9,10 @@ namespace ChatJobsity
 {
     public class ChatHub : Hub
     {
+        db_chatjobsityEntities _contextDB = new db_chatjobsityEntities();
         public static List<Client> ConnectedClients { get; set; } = new List<Client>();
-       
+        public static List<Disconnected> DisconnectedClients { get; set; } = new List<Disconnected>();
+
         public void Connect(string _username)
         {
             Client c = new Client()
@@ -20,7 +22,15 @@ namespace ChatJobsity
 
             };
             ConnectedClients.Add(c);
-            Clients.All.updateUsers(ConnectedClients.Count(), ConnectedClients.Select(x => x.UserName));
+
+            var _discoUser = (from x in _contextDB.Disconnected
+                              orderby x.Fe_Salida descending
+                              select x).AsEnumerable().Take(50);
+            var _discoUserX = (from x in _discoUser
+                          select new{UserName = x.Fe_Salida.ToString("yyyy-MM-dd HH:mm:ss") + " - " + x.UserID.ToString()}).ToList();
+
+
+            Clients.All.updateUsers(ConnectedClients.Count(), ConnectedClients.Select(x => x.UserName), _discoUserX.Select(x => x.UserName));
 
 
         }
@@ -52,7 +62,23 @@ namespace ChatJobsity
         {
             var disconnectedUser = ConnectedClients.FirstOrDefault(x=> x.Id.Equals(Context.ConnectionId));
             ConnectedClients.Remove(disconnectedUser);
-            Clients.All.updateUsers(ConnectedClients.Count(), ConnectedClients.Select(x => x.UserName));
+
+            var _objDb_disco = new Disconnected()
+            {
+                UserID = disconnectedUser.UserName,
+                Fe_Salida = System.DateTime.UtcNow.AddHours(-5)
+
+            };
+            _contextDB.Disconnected.Add(_objDb_disco);
+            _contextDB.SaveChanges();
+
+            var _discoUser = (from x in _contextDB.Disconnected
+                              orderby x.Fe_Salida descending
+                              select x).AsEnumerable().Take(50);
+            var _discoUserX = (from x in _discoUser
+                               select new { UserName = x.Fe_Salida.ToString("yyyy-MM-dd HH:mm:ss") + " - " + x.UserID.ToString() }).ToList();
+
+            Clients.All.updateUsers(ConnectedClients.Count(), ConnectedClients.Select(x => x.UserName), _discoUserX.Select(x => x.UserName));
             return base.OnDisconnected(stopCalled);
         }
     }
