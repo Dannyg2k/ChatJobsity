@@ -24,6 +24,9 @@
     <div class="row">
        <div class="col-sm-6">
            <asp:TextBox ID="userMessage" runat="server" Height="104px" TextMode="MultiLine" Width="516px"></asp:TextBox>
+           <br />
+           <input id="btnSendMessage" type="button"  class="btn btn-block btn-primary btn-flat" value="Send" />
+        
        </div>
          <div class="col-sm-6">
             <h5> Last Time Users Disconnected </h5><br />
@@ -33,12 +36,7 @@
     </div>
     
 
-    <div class="row">
-       <div class="col-sm-6">
-           <input id="btnSendMessage" type="button"  CssClass="btn btn-block btn-primary btn-flat" value="Send" />
-        
-       </div>
-    </div>
+
     <br />
     <h4></h4>
 
